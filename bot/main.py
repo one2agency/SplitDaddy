@@ -58,7 +58,8 @@ async def main() -> None:
         default=DefaultBotProperties(parse_mode=ParseMode.HTML),
     )
     dp = Dispatcher()
-    dp["db"] = db  # інжектиться в хендлери за іменем параметра `db`
+    dp["db"] = db          # інжектиться в хендлери за іменем параметра `db`
+    dp["config"] = config  # доступний хендлерам як параметр `config`
     dp.message.middleware(RememberUserMiddleware(db))
     dp.include_router(router)
 

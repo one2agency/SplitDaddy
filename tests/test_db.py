@@ -104,6 +104,28 @@ async def test_resolve_username_case_insensitive(db):
     assert await db.resolve_username("@nobody") is None
 
 
+async def test_get_stats(db):
+    empty = await db.get_stats()
+    assert empty == {
+        "users": 0, "parties_total": 0, "parties_open": 0,
+        "chats": 0, "expenses": 0, "total_cents": 0,
+    }
+    await db.remember_user(1, "a", "A")
+    await db.remember_user(2, "b", "B")
+    p1 = await db.create_party(-100, organizer_user_id=1)
+    p2 = await db.create_party(-200, organizer_user_id=1)
+    await db.close_party(p2.id)
+    await db.add_expense(p1.id, 1, 50000, "x", [1, 2])
+    await db.add_expense(p1.id, 1, 30000, "y", [1])
+    s = await db.get_stats()
+    assert s["users"] == 2
+    assert s["parties_total"] == 2
+    assert s["parties_open"] == 1
+    assert s["chats"] == 2
+    assert s["expenses"] == 2
+    assert s["total_cents"] == 80000
+
+
 async def test_remember_user_upsert(db):
     await db.remember_user(1, "old", "Old Name")
     await db.remember_user(1, "new", "New Name")

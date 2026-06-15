@@ -116,6 +116,19 @@ def render_summary(
     return "\n".join(lines)
 
 
+def render_stats(s: dict, currency: str = "UAH") -> str:
+    closed = s["parties_total"] - s["parties_open"]
+    return (
+        "📈 <b>Статистика SplitDaddy</b>\n\n"
+        f"👤 Користувачів: <b>{s['users']}</b>\n"
+        f"🎉 Вечірок: <b>{s['parties_total']}</b> "
+        f"(відкритих {s['parties_open']}, закритих {closed})\n"
+        f"💬 Чатів із ботом: <b>{s['chats']}</b>\n"
+        f"🧾 Витрат: <b>{s['expenses']}</b>\n"
+        f"💰 Сумарно проведено: <b>{money(s['total_cents'], currency)}</b>"
+    )
+
+
 def render_members(participants: list[Participant], party: Party) -> str:
     title = html.escape(party_title(party))
     if not participants:

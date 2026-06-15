@@ -420,6 +420,22 @@ class Database:
                 await self.conn.rollback()
                 raise
 
+    async def get_stats(self) -> dict:
+        """Глобальні агрегати для /stats."""
+        async with self.conn.execute(
+            """
+            SELECT
+              (SELECT COUNT(*) FROM known_users)                       AS users,
+              (SELECT COUNT(*) FROM parties)                           AS parties_total,
+              (SELECT COUNT(*) FROM parties WHERE status = 'open')     AS parties_open,
+              (SELECT COUNT(DISTINCT chat_id) FROM parties)            AS chats,
+              (SELECT COUNT(*) FROM expenses)                          AS expenses,
+              (SELECT COALESCE(SUM(amount_cents), 0) FROM expenses)    AS total_cents
+            """
+        ) as cur:
+            row = await cur.fetchone()
+        return dict(row)
+
     async def expenses_for_split(self, party_id: int) -> list[Expense]:
         rows = await self.list_expenses(party_id)
         return [

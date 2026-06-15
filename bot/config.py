@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 class Config:
     bot_token: str
     db_path: str
+    owner_id: int | None = None  # Telegram ID власника (для /stats); опційно
     default_currency: str = "UAH"
 
 
@@ -27,4 +28,7 @@ def load_config() -> Config:
 
     db_path = os.getenv("DB_PATH", "splitdaddy.db").strip() or "splitdaddy.db"
 
-    return Config(bot_token=token, db_path=db_path)
+    owner_raw = os.getenv("OWNER_ID", "").strip()
+    owner_id = int(owner_raw) if owner_raw.isdigit() else None
+
+    return Config(bot_token=token, db_path=db_path, owner_id=owner_id)

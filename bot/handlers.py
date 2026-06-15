@@ -21,6 +21,7 @@ from .formatting import (
     render_expenses,
     render_help,
     render_members,
+    render_stats,
     render_summary,
     render_welcome,
 )
@@ -101,6 +102,36 @@ async def on_my_chat_member(event: ChatMemberUpdated) -> None:
 @router.message(F.text.startswith("/start"))
 async def on_start(message: Message) -> None:
     await message.answer(render_welcome(), reply_markup=main_keyboard())
+
+
+@router.message(F.text == "/id")
+async def on_id(message: Message) -> None:
+    await message.reply(
+        f"Твій Telegram ID: <code>{message.from_user.id}</code>\n"
+        "Впиши його в <code>OWNER_ID</code> у .env на сервері, щоб закріпити "
+        "за собою доступ до /stats."
+    )
+
+
+async def _can_see_stats(message: Message, config) -> bool:
+    uid = message.from_user.id
+    if config is not None and config.owner_id is not None:
+        return uid == config.owner_id
+    # OWNER_ID не задано — дозволяємо адмінам групи (у приватному чаті — ні).
+    if message.chat.type in ("group", "supergroup"):
+        return await _is_admin(message, uid)
+    return False
+
+
+@router.message(F.text.in_({"/stats", "статистика", "Статистика"}))
+async def on_stats(message: Message, db: Database, config=None) -> None:
+    if not await _can_see_stats(message, config):
+        await message.reply(
+            "Статистика доступна власнику бота (OWNER_ID) або адміну групи."
+        )
+        return
+    stats = await db.get_stats()
+    await message.answer(render_stats(stats))
 
 
 # --------------------------------------------------------------------------
