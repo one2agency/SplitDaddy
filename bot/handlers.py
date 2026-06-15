@@ -108,8 +108,9 @@ async def on_start(message: Message) -> None:
 async def on_id(message: Message) -> None:
     await message.reply(
         f"Твій Telegram ID: <code>{message.from_user.id}</code>\n"
-        "Впиши його в <code>OWNER_ID</code> у .env на сервері, щоб закріпити "
-        "за собою доступ до /stats."
+        f"ID цього чату: <code>{message.chat.id}</code>\n\n"
+        "<code>OWNER_ID</code> = твій ID (доступ до /stats).\n"
+        "<code>NOTIFY_CHAT_ID</code> = ID чату (куди слати сповіщення про деплой)."
     )
 
 

@@ -9,4 +9,14 @@ git reset --hard --quiet origin/main      # сервер дзеркалить or
 .venv/bin/pip install -q -r requirements.txt
 systemctl restart splitdaddy
 
-echo "deployed $(git rev-parse --short HEAD) at $(date -u +%FT%TZ)"
+REV="$(git rev-parse --short HEAD)"
+echo "deployed $REV at $(date -u +%FT%TZ)"
+
+# Опційне сповіщення в Telegram (якщо в .env задано NOTIFY_CHAT_ID).
+set -a; . ./.env; set +a
+if [ -n "${NOTIFY_CHAT_ID:-}" ] && [ -n "${BOT_TOKEN:-}" ]; then
+  SUBJ="$(git log -1 --pretty=%s)"
+  curl -s -m 10 "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+    --data-urlencode "chat_id=${NOTIFY_CHAT_ID}" \
+    --data-urlencode "text=🚀 SplitDaddy задеплоєно: ${REV} — ${SUBJ}" >/dev/null || true
+fi
