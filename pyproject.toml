@@ -1,0 +1,5 @@
+[tool.pytest.ini_options]
+# async-тести виконуються без декораторів (зручно для db-інтеграційних тестів)
+asyncio_mode = "auto"
+testpaths = ["tests"]
+filterwarnings = ["ignore::DeprecationWarning"]

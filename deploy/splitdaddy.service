@@ -1,0 +1,26 @@
+[Unit]
+Description=SplitDaddy Telegram bot (long polling)
+After=network-online.target
+Wants=network-online.target
+# Не падати у спам-рестарти, якщо щось зламано назовсім (ключі належать [Unit]):
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+# --- ВІДРЕДАГУЙ ці два рядки під свій сервер ---
+User=__APP_USER__
+WorkingDirectory=__APP_DIR__
+# ----------------------------------------------
+EnvironmentFile=__APP_DIR__/.env
+ExecStart=__APP_DIR__/.venv/bin/python -m bot.main
+
+Restart=always
+RestartSec=5
+
+# Трохи безпеки (необов'язково, але корисно):
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
